@@ -6,7 +6,7 @@ services:
       target: web
     image: laravel-web:latest
     ports:
-      - "80:80"
+      - "1209:80"
     depends_on:
       - app
     networks:

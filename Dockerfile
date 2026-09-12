@@ -23,13 +23,18 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
-# Bootstrap a minimal .env so artisan can run without a real database
+# Bootstrap a minimal .env BEFORE composer install, because the post-autoload-dump
+# hook runs `php artisan package:discover` which bootstraps Laravel — including the
+# Reverb broadcaster that requires Pusher credentials to instantiate.
 RUN cp .env.example .env \
-    && php artisan key:generate --force \
+    && php -r "echo 'APP_KEY=base64:' . base64_encode(random_bytes(32)) . PHP_EOL;" >> .env \
+    && echo "REVERB_APP_ID=build-dummy" >> .env \
+    && echo "REVERB_APP_KEY=build-dummy" >> .env \
+    && echo "REVERB_APP_SECRET=build-dummy" >> .env \
     && touch database/database.sqlite
+
+# Install PHP dependencies (package:discover now has a valid .env)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Generate Wayfinder TypeScript types (routes + form actions)
 RUN php artisan wayfinder:generate --with-form
