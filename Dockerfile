@@ -1,4 +1,41 @@
-# Stage 1: Build Node.js assets
+# Stage 1: Install PHP dependencies & generate Wayfinder route types
+# The Wayfinder Vite plugin calls `php artisan wayfinder:generate` during build,
+# so we must generate these TypeScript types in a PHP stage before the Node build.
+FROM php:8.3-fpm-alpine AS php-deps
+
+# Install system dependencies and PHP extensions
+RUN apk add --no-cache \
+    postgresql-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    oniguruma-dev \
+    linux-headers \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip pcntl bcmath opcache
+
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . .
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Bootstrap a minimal .env so artisan can run without a real database
+RUN cp .env.example .env \
+    && php artisan key:generate --force \
+    && touch database/database.sqlite
+
+# Generate Wayfinder TypeScript types (routes + form actions)
+RUN php artisan wayfinder:generate --with-form
+
+
+# Stage 2: Build Node.js assets
 FROM node:22-alpine AS node-builder
 
 WORKDIR /app
@@ -18,6 +55,10 @@ RUN if [ -f pnpm-lock.yaml ]; then \
 # Copy the rest of the application
 COPY . .
 
+# Copy generated Wayfinder types from php-deps (these are gitignored, so not in source)
+COPY --from=php-deps /var/www/html/resources/js/actions ./resources/js/actions
+COPY --from=php-deps /var/www/html/resources/js/routes ./resources/js/routes
+
 # Build Vite assets
 RUN if [ -f pnpm-lock.yaml ]; then \
         corepack enable pnpm && pnpm run build; \
@@ -28,11 +69,10 @@ RUN if [ -f pnpm-lock.yaml ]; then \
     fi
 
 
-# Stage 2: Build PHP Application
+# Stage 3: Build PHP Application
 FROM php:8.3-fpm-alpine AS app
 
 # Install system dependencies and PHP extensions
-# Add postgresql-dev for pgsql extensions and linux-headers/oniguruma for others
 RUN apk add --no-cache \
     postgresql-dev \
     libzip-dev \
@@ -44,9 +84,6 @@ RUN apk add --no-cache \
     linux-headers \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip pcntl bcmath opcache
 
-# Install Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-
 # Set working directory
 WORKDIR /var/www/html
 
@@ -56,8 +93,8 @@ COPY . .
 # Copy built frontend assets from node-builder
 COPY --from=node-builder /app/public/build ./public/build
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# Reuse pre-installed vendor directory from php-deps stage
+COPY --from=php-deps /var/www/html/vendor ./vendor
 
 # Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
@@ -73,7 +110,7 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
 
 
-# Stage 3: Build Nginx web server
+# Stage 4: Build Nginx web server
 FROM nginx:alpine AS web
 
 # Copy Nginx config
