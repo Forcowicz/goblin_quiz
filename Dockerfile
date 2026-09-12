@@ -4,7 +4,7 @@ FROM node:22-alpine AS node-builder
 WORKDIR /app
 
 # Copy package management files
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
+COPY package.json pnpm-workspace.yaml* package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 
 # Install dependencies based on the lock file present
 RUN if [ -f pnpm-lock.yaml ]; then \
@@ -19,7 +19,13 @@ RUN if [ -f pnpm-lock.yaml ]; then \
 COPY . .
 
 # Build Vite assets
-RUN npm run build
+RUN if [ -f pnpm-lock.yaml ]; then \
+        corepack enable pnpm && pnpm run build; \
+    elif [ -f yarn.lock ]; then \
+        yarn build; \
+    else \
+        npm run build; \
+    fi
 
 
 # Stage 2: Build PHP Application

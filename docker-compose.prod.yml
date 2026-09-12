@@ -24,6 +24,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - app-storage:/var/www/html/storage
     networks:
       - app-network
     restart: unless-stopped
@@ -57,15 +59,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=${DB_DATABASE:-laravel}
-      - POSTGRES_USER=${DB_USERNAME:-laravel}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=${DB_DATABASE:?DB_DATABASE must be set}
+      - POSTGRES_USER=${DB_USERNAME:?DB_USERNAME must be set}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-laravel} -d ${DB_DATABASE:-laravel}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:?DB_USERNAME must be set} -d ${DB_DATABASE:?DB_DATABASE must be set}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -77,3 +79,4 @@ networks:
 
 volumes:
   db-data:
+  app-storage:
