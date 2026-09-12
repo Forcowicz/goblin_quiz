@@ -7,7 +7,17 @@ import { store } from "@/routes/chatMessages";
 import MessageBubble from "@/components/MessageBubble.vue";
 import { useEcho } from "@laravel/echo-vue";
 import orcBaseImg from "@/../images/orc_base.webp";
+import orcThinkingImg from "@/../images/orc_thinking.webp";
+import orcLaughingImg from "@/../images/orc_laugh.webp";
+import orcAngryImg from "@/../images/orc_angry.webp";
 import { AIResponseDTO } from "@/types";
+
+const reactionSpriteMap: Record<string, string> = {
+    angry: orcAngryImg,
+    laughing: orcLaughingImg,
+};
+
+const currentOrcImg = ref(orcBaseImg);
 
 const page = usePage();
 
@@ -81,6 +91,7 @@ function startTyping(text: string, onDone: () => void) {
 function processNextMessage() {
     if (messageQueue.length === 0) {
         isProcessingQueue = false;
+        currentOrcImg.value = orcBaseImg;
         return;
     }
 
@@ -88,17 +99,22 @@ function processNextMessage() {
     const next = messageQueue.shift()!;
 
     startTyping(next, () => {
-        // 1s pause after typing finishes, then show next
+        // 2.5s pause after typing finishes, then show next
         advanceTimer = setTimeout(processNextMessage, 2500);
     });
 }
 
-function displayAiMessages(messages: string[]) {
+function displayAiMessages(messages: string[], reaction?: string | null) {
     if (advanceTimer) clearTimeout(advanceTimer);
     if (typewriterTimer) clearTimeout(typewriterTimer);
     currentHtml.value = "";
     messageQueue = [...messages];
     isProcessingQueue = false;
+
+    if (reaction && reactionSpriteMap[reaction]) {
+        currentOrcImg.value = reactionSpriteMap[reaction];
+    }
+
     processNextMessage();
 }
 
@@ -154,6 +170,7 @@ function handleSuccess() {
     }
 
     isWaitingForLLM.value = true;
+    currentOrcImg.value = orcThinkingImg;
 
     displayUserMessage();
 
@@ -180,7 +197,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
     const messages = Array.isArray(data.messages)
         ? data.messages
         : Object.values(data.messages as Record<string, string>);
-    displayAiMessages(messages);
+    displayAiMessages(messages, data.reaction);
 
     if (data.conversationId) {
         aiConversationId.value = data.conversationId;
@@ -203,9 +220,9 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
         </MessageBubble>
 
         <img
-            :src="orcBaseImg"
+            :src="currentOrcImg"
             alt=""
-            class="bottom-0 left-1/2 absolute w-full h-full object-contain aspect-video -translate-x-1/2 -translate-y-23"
+            class="top-46 left-1/2 absolute w-70 h-full object-contain aspect-video -translate-x-1/2 -translate-y-23"
         />
 
         <div class="relative flex-1 mb-16 w-135">

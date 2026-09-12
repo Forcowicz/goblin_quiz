@@ -32,12 +32,17 @@ class NewUserMessageListener implements ShouldQueue
             $attachments[] = new \Laravel\Ai\Files\LocalImage($event->imagePath);
         }
 
+        $quizTrigger = '';
+        if (random_int(1, 10) <= 3) {
+            $quizTrigger = ' [SYSTEM: Zanim odpowiesz na wiadomość gracza, wymyśl krótkie pytanie quizowe (np. z wiedzy ogólnej, historii, fantasy, lub o orkach) i zażądaj odpowiedzi. Dopiero po uzyskaniu poprawnej odpowiedzi kontynuuj normalną rozmowę. Sam oceń poprawność odpowiedzi gracza. Bądź wyrozumiały, ale cyniczny.]';
+        }
+
         if ($event->aiConversationId) {
             $agent->continue($event->aiConversationId, as: $user);
-            $response = $agent->prompt($event->message->content, $attachments);
+            $response = $agent->prompt($event->message->content . $quizTrigger, $attachments);
         } else {
             $agent->forUser($user);
-            $response = $agent->prompt($event->message->content . " SYSTEM INFO: game_id = " . $event->game->id, $attachments);
+            $response = $agent->prompt($event->message->content . $quizTrigger . " SYSTEM INFO: game_id = " . $event->game->id, $attachments);
         }
 
         // if ($event->game->has_stage_changed && $event->aiConversationId) {
@@ -64,9 +69,16 @@ class NewUserMessageListener implements ShouldQueue
         // }
 
         $lastContent = $response->messages->last()?->content ?? '[]';
-        $messages = json_decode($lastContent, true);
-        $messages = is_array($messages) ? array_values(array_map('strval', $messages)) : [(string) $lastContent];
+        $decoded = json_decode($lastContent, true);
 
-        NewAIResponseEvent::dispatch(new AIResponseDTO($messages, $response->conversationId));
+        if (is_array($decoded) && array_key_exists('messages', $decoded)) {
+            $messages = array_values(array_map('strval', $decoded['messages']));
+            $reaction = $decoded['reaction'] ?? null;
+        } else {
+            $messages = is_array($decoded) ? array_values(array_map('strval', $decoded)) : [(string) $lastContent];
+            $reaction = null;
+        }
+
+        NewAIResponseEvent::dispatch(new AIResponseDTO($messages, $response->conversationId, $reaction));
     }
 }
