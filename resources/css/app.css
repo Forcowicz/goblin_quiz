@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme inline {
+    --color-onyx: #141414;
+    --color-platinum: #eef0f2;
+    --color-accent: #ec058e;
+}
+
+.pixel-box {
+    filter: drop-shadow(4px 0 0 #12111a) drop-shadow(-4px 0 0 #12111a)
+        drop-shadow(0 4px 0 #12111a) drop-shadow(0 -4px 0 #12111a)
+        drop-shadow(6px 6px 0px rgba(0, 0, 0, 0.4)); /* Opcjonalny retro cień */
+
+    clip-path: polygon(
+        /* Lewy górny róg */ 8px 0,
+        calc(100% - 8px) 0,
+        /* Prawy górny róg */ calc(100% - 8px) 4px,
+        calc(100% - 4px) 4px,
+        calc(100% - 4px) 8px,
+        100% 8px,
+        /* Prawy dolny róg */ 100% calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 8px) calc(100% - 4px),
+        calc(100% - 8px) 100%,
+        /* Lewy dolny róg */ 8px 100%,
+        8px calc(100% - 4px),
+        4px calc(100% - 4px),
+        4px calc(100% - 8px),
+        0 calc(100% - 8px),
+        /* Powrót do lewego górnego */ 0 8px,
+        4px 8px,
+        4px 4px,
+        8px 4px
+    );
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite alternate;
+}
+
+@keyframes floating {
+    from {
+        transform: translateY(-3px);
+    }
+
+    to {
+        transform: translateY(3px);
+    }
+}
