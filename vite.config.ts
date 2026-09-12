@@ -33,9 +33,9 @@ export default defineConfig({
                 },
             },
         }),
-        wayfinder({
+        ...(!process.env.DOCKER_BUILD ? [wayfinder({
             formVariants: true,
-        }),
+        })] : []),
     ]),
     server: {
         watch: {
