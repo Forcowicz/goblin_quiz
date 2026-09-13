@@ -75,7 +75,7 @@ enum GameStage: string
             self::BEFORE_LAKE => 'Gracz musi potwierdzić, że wyznaczył lokalizację trzeciego fragmentu mapy i wie, gdzie ma iść.',
             self::LAKE => "Gracz musi podać trzycyfrowy kod znajdujący się na rewersie fragmentu mapy.",
             self::BEFORE_FORT => 'Gracz musi potwierdzić, że wyznaczył lokalizację czwartego fragmentu mapy i wie, gdzie ma iść.',
-            self::FORT => "Tutaj gracz po odnalezieniu wszystkich pięciu grzybków ma wysłać Tobie zdjęcie. Zweryfikuj, że na zdjęciu jest 5 jednakowych sztucznych muchomorów czerwonych. Po wywołaniu narzędzia CompleteStage etap zostanie zaliczony bezwarunkowo.",
+            self::FORT => "Tutaj gracz po odnalezieniu wszystkich pięciu grzybków ma tobie ten fakt zameldować. Po wywołaniu narzędzia CompleteStage etap zostanie zaliczony bezwarunkowo.",
             self::AFTER_FORT => "Gracz musi podać trzycyfrowy kod znajdujący się na rewersie fragmentu mapy.",
             self::BEFORE_TREASURE => 'Gracz musi potwierdzić, że wyznaczył lokalizację skarbu i wie, gdzie ma iść.',
             self::TREASURE => "Gracz musi potwierdzić, że wykopał skarb oraz podać zawartość. Jest to voucher na zjazd tyrolką w Trzebini oraz sztuczne monety czekoladowe.",
