@@ -8,6 +8,9 @@ if [ "$1" = "php-fpm" ]; then
     echo "Running migrations..."
     php artisan migrate --force
 
+    echo "Running seeders..."
+    php artisan db:seed --force
+
     echo "Caching configuration..."
     php artisan config:cache
     php artisan event:cache
