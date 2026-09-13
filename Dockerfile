@@ -120,6 +120,9 @@ COPY --from=php-deps /var/www/html/vendor ./vendor
 # Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Copy custom PHP configuration
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

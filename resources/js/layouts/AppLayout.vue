@@ -10,7 +10,7 @@ import tempCave from "@/../images/temp_orc.webp";
         <img
             :src="caveImg"
             alt=""
-            class="bottom-0 left-1/2 absolute w-full h-full object-contain aspect-video -translate-x-1/2 -translate-y-23 pointer-events-none select-none"
+            class="bottom-0 left-1/2 absolute w-full h-full object-cover aspect-video -translate-x-1/2 -translate-y-23 pointer-events-none select-none"
         />
         <slot />
     </div>
