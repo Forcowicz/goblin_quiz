@@ -8,6 +8,7 @@ services:
         VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
         VITE_REVERB_HOST: ${VITE_REVERB_HOST}
         VITE_REVERB_PORT: ${VITE_REVERB_PORT}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME}
         VITE_APP_NAME: ${VITE_APP_NAME}
     image: laravel-web:latest
     ports:
@@ -27,6 +28,7 @@ services:
         VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
         VITE_REVERB_HOST: ${VITE_REVERB_HOST}
         VITE_REVERB_PORT: ${VITE_REVERB_PORT}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME}
         VITE_APP_NAME: ${VITE_APP_NAME}
     image: laravel-app:latest
     env_file:
