@@ -190,6 +190,22 @@ function hideUserMessage() {
     }
 }
 
+function onInputFocus() {
+    setTimeout(() => {
+        if (window.scrollY !== 0) {
+            window.scrollTo(0, 0);
+        }
+    }, 50);
+}
+
+function onInputBlur() {
+    setTimeout(() => {
+        if (window.scrollY !== 0) {
+            window.scrollTo(0, 0);
+        }
+    }, 50);
+}
+
 function normalizeAiResponse(data: AIResponseDTO): { messages: string[]; reaction?: string | null } {
     let rawMessages: unknown = data.messages;
     let reaction: string | null | undefined = data.reaction;
@@ -259,10 +275,10 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
 <template>
     <Head title="Jaskinia Orka"></Head>
 
-    <main class="flex flex-col flex-1 items-center w-full max-w-135 mx-auto relative z-10">
+    <main class="flex flex-col flex-1 min-h-0 items-center w-full max-w-135 mx-auto relative z-10">
         <MessageBubble
             v-if="currentHtml"
-            class="z-30 relative mt-2 sm:mt-6 md:mt-12 w-full max-w-135"
+            class="z-30 relative mt-1 sm:mt-6 md:mt-12 w-full max-w-135 shrink-0 max-h-36 sm:max-h-52 overflow-y-auto"
             :animated="false"
         >
             <span class="break-words text-sm sm:text-base leading-relaxed" v-html="currentHtml" />
@@ -271,21 +287,21 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
         <img
             :src="currentOrcImg"
             alt=""
-            class="top-32 sm:top-40 md:top-46 left-1/2 absolute w-52 sm:w-60 md:w-70 h-full object-contain aspect-video -translate-x-1/2 -translate-y-16 sm:-translate-y-20 md:-translate-y-23 pointer-events-none select-none"
+            class="top-24 sm:top-40 md:top-46 left-1/2 absolute w-44 sm:w-60 md:w-70 max-h-[35vh] sm:max-h-none h-auto object-contain aspect-video -translate-x-1/2 -translate-y-8 sm:-translate-y-20 md:-translate-y-23 pointer-events-none select-none transition-all duration-200"
         />
 
-        <div class="relative flex-1 mb-4 sm:mb-8 md:mb-16 w-full max-w-135 min-h-20 sm:min-h-28">
+        <div class="relative flex-1 min-h-0 flex flex-col justify-end mb-2 sm:mb-8 md:mb-16 w-full max-w-135">
             <Transition name="message" @after-enter="applyFloatingAnimation">
                 <MessageBubble
                     v-if="isUserMessageShown"
                     :animated="false"
-                    class="bottom-0 left-0 absolute w-full sm:w-auto max-w-full"
+                    class="w-full sm:w-auto max-w-full max-h-32 sm:max-h-44 overflow-y-auto shrink-0"
                 >
                     <img
                         v-if="lastImagePreviewUrl"
                         :src="lastImagePreviewUrl"
                         alt="Załączony obraz"
-                        class="block mb-2 max-w-full max-h-32 sm:max-h-40 object-contain pixel-box"
+                        class="block mb-2 max-w-full max-h-24 sm:max-h-40 object-contain pixel-box"
                     />
                     <span v-if="lastUserMessage" class="break-words text-sm sm:text-base">{{ lastUserMessage }}</span>
                 </MessageBubble>
@@ -304,7 +320,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                 })
             "
             @success="handleSuccess"
-            class="relative mt-auto w-full max-w-135 z-20"
+            class="relative mt-auto w-full max-w-135 z-20 shrink-0"
         >
             <input type="hidden" name="chat_conversation_id" :value="1" />
 
@@ -343,6 +359,8 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                     name="content"
                     id="user_message"
                     :disabled="isWaitingForLLM"
+                    @focus="onInputFocus"
+                    @blur="onInputBlur"
                     class="bg-platinum px-3 py-2.5 sm:px-4 sm:py-3 pr-20 sm:pr-22 focus:outline-none w-full font-sans text-base text-onyx transition-opacity duration-300 pixel-box"
                     :class="{
                         'opacity-50 cursor-not-allowed': isWaitingForLLM,

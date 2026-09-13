@@ -9,6 +9,17 @@
     --color-accent: #ec058e;
 }
 
+html,
+body,
+#app {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
 .pixel-box {
     filter: drop-shadow(4px 0 0 #12111a) drop-shadow(-4px 0 0 #12111a)
         drop-shadow(0 4px 0 #12111a) drop-shadow(0 -4px 0 #12111a)
