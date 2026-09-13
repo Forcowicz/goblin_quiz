@@ -259,35 +259,35 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
 <template>
     <Head title="Jaskinia Orka"></Head>
 
-    <main class="flex flex-col flex-1 items-center">
+    <main class="flex flex-col flex-1 items-center w-full max-w-135 mx-auto relative z-10">
         <MessageBubble
             v-if="currentHtml"
-            class="z-100 relative mt-12 w-135"
+            class="z-30 relative mt-2 sm:mt-6 md:mt-12 w-full max-w-135"
             :animated="false"
         >
-            <span v-html="currentHtml" />
+            <span class="break-words text-sm sm:text-base leading-relaxed" v-html="currentHtml" />
         </MessageBubble>
 
         <img
             :src="currentOrcImg"
             alt=""
-            class="top-46 left-1/2 absolute w-70 h-full object-contain aspect-video -translate-x-1/2 -translate-y-23"
+            class="top-32 sm:top-40 md:top-46 left-1/2 absolute w-52 sm:w-60 md:w-70 h-full object-contain aspect-video -translate-x-1/2 -translate-y-16 sm:-translate-y-20 md:-translate-y-23 pointer-events-none select-none"
         />
 
-        <div class="relative flex-1 mb-16 w-135">
+        <div class="relative flex-1 mb-4 sm:mb-8 md:mb-16 w-full max-w-135 min-h-20 sm:min-h-28">
             <Transition name="message" @after-enter="applyFloatingAnimation">
                 <MessageBubble
                     v-if="isUserMessageShown"
                     :animated="false"
-                    class="bottom-0 left-0 absolute"
+                    class="bottom-0 left-0 absolute w-full sm:w-auto max-w-full"
                 >
                     <img
                         v-if="lastImagePreviewUrl"
                         :src="lastImagePreviewUrl"
                         alt="Załączony obraz"
-                        class="block mb-2 max-w-full max-h-40 object-contain pixel-box"
+                        class="block mb-2 max-w-full max-h-32 sm:max-h-40 object-contain pixel-box"
                     />
-                    <span v-if="lastUserMessage">{{ lastUserMessage }}</span>
+                    <span v-if="lastUserMessage" class="break-words text-sm sm:text-base">{{ lastUserMessage }}</span>
                 </MessageBubble>
             </Transition>
         </div>
@@ -304,7 +304,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                 })
             "
             @success="handleSuccess"
-            class="relative mt-auto w-135"
+            class="relative mt-auto w-full max-w-135 z-20"
         >
             <input type="hidden" name="chat_conversation_id" :value="1" />
 
@@ -312,22 +312,22 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
             <Transition name="preview">
                 <div
                     v-if="selectedImage"
-                    class="flex items-center gap-2 bg-slate-800 mb-2 px-3 py-1.5 border-goblin pixel-box"
+                    class="flex items-center gap-2 bg-slate-800 mb-2 px-3 py-1.5 border-goblin pixel-box max-w-full"
                 >
                     <img
                         v-if="imagePreviewUrl"
                         :src="imagePreviewUrl"
                         alt="Podgląd"
-                        class="w-8 h-8 object-cover pixel-box"
+                        class="w-8 h-8 object-cover pixel-box shrink-0"
                     />
                     <span
-                        class="flex-1 font-sans text-platinum text-xs truncate"
+                        class="flex-1 font-sans text-platinum text-xs truncate min-w-0"
                         >{{ selectedImage.name }}</span
                     >
                     <button
                         type="button"
                         @click="clearImage"
-                        class="font-sans text-red-400 hover:text-red-300 text-xs cursor-pointer"
+                        class="font-sans text-red-400 hover:text-red-300 text-xs cursor-pointer p-1 shrink-0"
                         aria-label="Usuń obraz"
                     >
                         ✕
@@ -335,7 +335,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                 </div>
             </Transition>
 
-            <div class="relative">
+            <div class="relative w-full">
                 <input
                     v-model.trim="messageContentInput"
                     placeholder="Wprowadź wiadomość do orka..."
@@ -343,7 +343,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                     name="content"
                     id="user_message"
                     :disabled="isWaitingForLLM"
-                    class="bg-platinum px-4 py-3 pr-22 focus:outline-none w-full font-sans text-onyx transition-opacity duration-300 pixel-box"
+                    class="bg-platinum px-3 py-2.5 sm:px-4 sm:py-3 pr-20 sm:pr-22 focus:outline-none w-full font-sans text-base text-onyx transition-opacity duration-300 pixel-box"
                     :class="{
                         'opacity-50 cursor-not-allowed': isWaitingForLLM,
                     }"
@@ -364,7 +364,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                     type="button"
                     @click="triggerFileInput"
                     :disabled="isWaitingForLLM"
-                    class="top-1/2 right-11 absolute w-6 h-6 transition-opacity -translate-y-1/2 duration-300 attach-btn"
+                    class="top-1/2 right-10 sm:right-11 absolute w-8 h-8 sm:w-6 sm:h-6 p-1 flex items-center justify-center transition-opacity -translate-y-1/2 duration-300 attach-btn"
                     :class="
                         isWaitingForLLM
                             ? 'opacity-30 cursor-not-allowed'
@@ -375,14 +375,14 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                     <img
                         :src="attachIconUrl"
                         alt="Attach icon"
-                        class="w-full h-full"
+                        class="w-full h-full object-contain"
                     />
                 </button>
 
                 <button
                     type="submit"
                     :disabled="isWaitingForLLM"
-                    class="top-1/2 right-4 absolute w-6 h-6 transition-opacity -translate-y-1/2 duration-300"
+                    class="top-1/2 right-2 sm:right-4 absolute w-8 h-8 sm:w-6 sm:h-6 p-1 flex items-center justify-center transition-opacity -translate-y-1/2 duration-300"
                     :class="
                         isWaitingForLLM
                             ? 'opacity-30 cursor-not-allowed'
@@ -392,7 +392,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
                     <img
                         :src="sendIconUrl"
                         alt="Send icon"
-                        class="w-full h-full"
+                        class="w-full h-full object-contain"
                     />
                 </button>
             </div>
