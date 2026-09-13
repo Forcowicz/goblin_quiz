@@ -287,7 +287,7 @@ useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
         <img
             :src="currentOrcImg"
             alt=""
-            class="top-24 sm:top-40 md:top-46 left-1/2 absolute w-44 sm:w-60 md:w-70 max-h-[35vh] sm:max-h-none h-auto object-contain aspect-video -translate-x-1/2 -translate-y-8 sm:-translate-y-20 md:-translate-y-23 pointer-events-none select-none transition-all duration-200"
+            class="top-28 sm:top-36 md:top-44 left-1/2 absolute w-64 sm:w-80 md:w-96 h-auto object-contain -translate-x-1/2 -translate-y-12 sm:-translate-y-16 md:-translate-y-20 pointer-events-none select-none"
         />
 
         <div class="relative flex-1 min-h-0 flex flex-col justify-end mb-2 sm:mb-8 md:mb-16 w-full max-w-135">
