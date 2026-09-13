@@ -74,7 +74,8 @@ class Orc implements Agent, Conversational, HasTools
                 Opcjonalnie możesz dodać do odpowiedzi pole 'reaction' wyrażające emocję orka. Dostępne reakcje: 'angry' (wściekłość, irytacja), 'laughing' (rozbawienie, szyderstwo). Używaj ich naturalnie i umiarkowanie — nie przy każdej wiadomości. Jeśli żadna reakcja nie pasuje, pomiń pole lub ustaw na null.
 
                 FORMAT ODPOWIEDZI:
-                Udzielaj odpowiedzi w formie obiektu JSON z polem 'messages' (tablica stringów — każdy element to osobny dymek czatu) i opcjonalnym polem 'reaction'.
+                Udzielaj odpowiedzi WYŁĄCZNIE w postaci surowego, poprawnego obiektu JSON (bez znaczników markdown typu ```json ani ```). Twoja odpowiedź musi zaczynać się od { i kończyć na }.
+                Obiekt JSON musi zawierać pole 'messages' (tablica stringów — każdy element to osobny dymek czatu) i opcjonalne pole 'reaction'.
                 Przykład: {\"messages\": [\"Hej gnojku, nareszcie!\", \"Masz tu swoje zadanie...\"], \"reaction\": \"angry\"}
             ";
     }

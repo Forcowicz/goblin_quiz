@@ -69,10 +69,18 @@ class NewUserMessageListener implements ShouldQueue
         // }
 
         $lastContent = $response->messages->last()?->content ?? '[]';
-        $decoded = json_decode($lastContent, true);
+        $contentToDecode = trim($lastContent);
+
+        if (preg_match('/^```(?:json)?\s*([\s\S]*?)\s*```$/i', $contentToDecode, $matches)) {
+            $contentToDecode = trim($matches[1]);
+        } elseif (preg_match('/\{[\s\S]*\}/', $contentToDecode, $matches)) {
+            $contentToDecode = $matches[0];
+        }
+
+        $decoded = json_decode($contentToDecode, true);
 
         if (is_array($decoded) && array_key_exists('messages', $decoded)) {
-            $messages = array_values(array_map('strval', $decoded['messages']));
+            $messages = array_values(array_map('strval', (array) $decoded['messages']));
             $reaction = $decoded['reaction'] ?? null;
         } else {
             $messages = is_array($decoded) ? array_values(array_map('strval', $decoded)) : [(string) $lastContent];

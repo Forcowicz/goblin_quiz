@@ -190,14 +190,63 @@ function hideUserMessage() {
     }
 }
 
-//
+function normalizeAiResponse(data: AIResponseDTO): { messages: string[]; reaction?: string | null } {
+    let rawMessages: unknown = data.messages;
+    let reaction: string | null | undefined = data.reaction;
+
+    if (typeof rawMessages === "string") {
+        try {
+            const parsed = JSON.parse(rawMessages);
+            if (Array.isArray(parsed)) {
+                rawMessages = parsed;
+            } else if (parsed && typeof parsed === "object") {
+                if (Array.isArray((parsed as any).messages)) {
+                    rawMessages = (parsed as any).messages;
+                }
+                if ((parsed as any).reaction) {
+                    reaction = (parsed as any).reaction;
+                }
+            }
+        } catch {
+            rawMessages = [rawMessages];
+        }
+    }
+
+    let messages: string[] = Array.isArray(rawMessages)
+        ? rawMessages.map(String)
+        : Object.values((rawMessages || {}) as Record<string, string>).map(String);
+
+    if (messages.length === 1 && typeof messages[0] === "string") {
+        let content = messages[0].trim();
+        const codeBlockMatch = content.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+        if (codeBlockMatch) {
+            content = codeBlockMatch[1].trim();
+        }
+
+        if (content.startsWith("{") && content.endsWith("}")) {
+            try {
+                const parsed = JSON.parse(content);
+                if (parsed && typeof parsed === "object") {
+                    if (Array.isArray(parsed.messages)) {
+                        messages = parsed.messages.map(String);
+                    }
+                    if (parsed.reaction) {
+                        reaction = parsed.reaction;
+                    }
+                }
+            } catch {
+                // Not valid JSON, keep as is
+            }
+        }
+    }
+
+    return { messages, reaction };
+}
 
 useEcho("user.1", ".chat.new_ai_message", (res: { data: AIResponseDTO }) => {
     const { data } = res;
-    const messages = Array.isArray(data.messages)
-        ? data.messages
-        : Object.values(data.messages as Record<string, string>);
-    displayAiMessages(messages, data.reaction);
+    const { messages, reaction } = normalizeAiResponse(data);
+    displayAiMessages(messages, reaction);
 
     if (data.conversationId) {
         aiConversationId.value = data.conversationId;
